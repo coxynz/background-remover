@@ -54,6 +54,25 @@ export function initUpload({ dropZone, fileInput, onFile, onError }) {
         if (file) handleFile(file, onFile, onError);
     });
 
+    // Paste support
+    document.addEventListener('paste', (e) => {
+        // Only handle paste if we are in the upload section (dropZone is visible)
+        if (dropZone.closest('.hidden')) return;
+
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file) {
+                    handleFile(file, onFile, onError);
+                    break; // Handle only the first image found
+                }
+            }
+        }
+    });
+
     // Prevent default browser behavior for dragging files onto the page
     document.addEventListener('dragover', (e) => e.preventDefault());
     document.addEventListener('drop', (e) => e.preventDefault());
